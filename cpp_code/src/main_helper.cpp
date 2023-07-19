@@ -72,9 +72,9 @@ void estimateFoodLeftovers(std::string tray_image_dir, std::string leftover_imag
 
 
         //Get the current dish roi
-        cv::Mat roi = tray_dish_mask(kernel);
+        //cv::Mat roi = tray_dish_mask(kernel);
 
-        cv::imshow("tray dish " + std::to_string(i), roi);
+        cv::imshow("tray dish " + std::to_string(i), tray_dish_mask);
 
     }
 
