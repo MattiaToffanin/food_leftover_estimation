@@ -3,9 +3,14 @@
 #include <Python.h>
 #include "iostream"
 #include <unistd.h>
+#include <iostream>
+#include "include/main_helper.hpp"
+#include <opencv2/highgui.hpp>
+#include <opencv2/imgproc.hpp>
 
 
-int main() {
+
+int my_main() {
     /*const char* version = Py_GetVersion();
     std::cout << "Python interpreter version: " << version << std::endl;*/
     Py_Initialize();
@@ -43,6 +48,14 @@ int main() {
     if (fp != NULL)
         PyRun_SimpleFile(fp, "../python_code/multilabel_classifier.py");
     Py_Finalize();
+
+    return 0;
+}
+
+int main() {
+    std::cout << "Hello, World!" << std::endl;
+
+    estimateFoodLeftovers("../dataset/test_dataset/tray1/food_image.jpg", "../dataset/test_dataset/tray1/leftover1.jpg");
 
     return 0;
 }
