@@ -159,3 +159,4 @@ def detect_more(tray, img):
 if __name__ == '__main__':
     tray, img = read_food_info("../tmp/food_info.txt")
     detect_more(tray, img)
+
