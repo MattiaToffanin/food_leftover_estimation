@@ -34,7 +34,7 @@ def setup_model(num_classes):
     x = layers.Dense(num_classes)(x)
     outputs = layers.Activation("softmax")(x)
     model = tf.keras.Model(inputs, outputs)
-    model.load_weights("littleaug_weights_final_sparse_olddataset.h5")
+    model.load_weights("weights/weights_final.h5")
     model.compile(loss="sparse_categorical_crossentropy", optimizer=tf.keras.optimizers.Adam(0.001),
                   metrics=["accuracy"])
     return model
@@ -42,8 +42,13 @@ def setup_model(num_classes):
 
 # detect all food in rectangles provided
 def detect_more(tray, img):
+    import os
+
+    # Ottieni il percorso della directory di lavoro corrente
+    current_directory = os.getcwd()
+    print("Current working directory:", current_directory)
     # get class names from json file (stored during training)
-    with open("littleaug_weights_final_sparse_olddataset_class_names.json", "r") as f:
+    with open("weights/class_names.json", "r") as f:
         class_names = json.load(f)
 
     class_names = list(class_names.keys())  # get class names as list
@@ -65,11 +70,11 @@ def detect_more(tray, img):
     model = setup_model(len(class_names))
 
     # get rectangles
-    bounding_box_path = "benchmark_dataset/tray" + str(tray) + "/bounding_boxes/" + img + "_bounding_box.txt"
+    bounding_box_path = "../dataset/test_dataset/tray" + str(tray) + "/bounding_boxes/" + img + "_bounding_box.txt"
     rectangles = read_rectangles_from_file(bounding_box_path)
 
     # get image
-    image_path = "benchmark_dataset/tray" + str(tray) + "/" + img + ".jpg"
+    image_path = "../dataset/test_dataset/tray" + str(tray) + "/" + img + ".jpg"
     image = cv2.imread(image_path)
     cv2.imshow("immagine", image)
     cv2.waitKey(0)
@@ -129,8 +134,9 @@ def detect_more(tray, img):
         print(new_output_line)
         output_lines.append(new_output_line)
 
-    out_path = 'benchmark_dataset/tray' + str(tray) + "/bounding_boxes/" + img +"_predicted.txt"
-    store_rectangles_to_file(out_path, output_lines)
+    # out_path = /tray' + str(tray) + "/bounding_boxes/" + img + "_predicted.txt"
+    # store_rectangles_to_file(out_path, output_lines)
+    print(output_lines)
 
     # print(output_lines)
 
