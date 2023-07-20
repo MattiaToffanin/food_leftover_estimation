@@ -1,5 +1,5 @@
 //
-// Created by Mattia Toffanin on 20/07/23.
+// Created by Mattia Toffanin
 //
 
 #ifndef FOOD_LEFTOVER_ESTIMATION_MULTI_CLASSIFY_HPP

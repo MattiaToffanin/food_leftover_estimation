@@ -97,19 +97,11 @@ void estimateFoodLeftovers(std::string tray_image_dir, std::string leftover_imag
 
     //multi-label classification
 
-    //multi_classify();
-/*
+    multi_classify();
 
-    std::ofstream file3("tmp/labeled_rectangles.txt");
-
-    if (file3.is_open()) {
-        std::cout << "DAJEEEEEE";
-    } else {
-        std::cout << "Impossibile aprire il file." << std::endl;
-    }
-    file3.close();
-*/
     //segmentation
+
+    std::cout << "--------------------";
 
 
     // single-label classification

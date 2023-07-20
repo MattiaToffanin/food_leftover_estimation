@@ -1,5 +1,5 @@
 //
-// Created by Mattia Toffanin on 20/07/23.
+// Created by Mattia Toffanin
 //
 
 #include "../include/multi_classify.hpp"
@@ -39,7 +39,7 @@ int multi_classify() {
     FILE *fp = _Py_fopen_obj(obj, "r+");
     if (fp != NULL)
         PyRun_SimpleFile(fp, "multilabel_classifier.py");
-    Py_Finalize();
+    //Py_Finalize();
 
     // re-setting working directory
     const char *root_path = "../";
@@ -48,7 +48,6 @@ int multi_classify() {
         std::cerr << "Failed to change directory!" << std::endl;
         return 1;
     }
-
 
     return 0;
 }

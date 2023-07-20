@@ -87,6 +87,7 @@ def detect_one(path_img):
 
     output_lines = []  # list to store lines to print in output file
 
+    print("Predicting final food label")
     for rect in rectangles:
         # get rect sub-image
         rect_image = image[rect[1]:rect[1] + rect[3], rect[0]:rect[0] + rect[2]]

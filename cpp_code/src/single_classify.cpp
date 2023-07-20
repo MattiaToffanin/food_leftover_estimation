@@ -1,5 +1,5 @@
 //
-// Created by Mattia Toffanin on 20/07/23.
+// Created by Mattia Toffanin
 //
 
 #include "../include/single_classify.hpp"
@@ -48,7 +48,6 @@ int single_classify() {
         std::cerr << "Failed to change directory!" << std::endl;
         return 1;
     }
-
 
     return 0;
 }
