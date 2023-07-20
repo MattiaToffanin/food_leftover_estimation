@@ -8,6 +8,12 @@ import cv2
 input_shape = (224, 224, 3)
 
 
+def read_food_info(file_path):
+    with open(file_path, 'r') as file:
+        for line in file:
+            return line.split(' ')
+
+
 def read_rectangles_from_file(file_path):
     rectangles = []
     with open(file_path, 'r') as file:
@@ -34,7 +40,7 @@ def setup_model(num_classes):
     x = layers.Dense(num_classes)(x)
     outputs = layers.Activation("softmax")(x)
     model = tf.keras.Model(inputs, outputs)
-    model.load_weights("littleaug_weights_final_sparse_olddataset.h5")
+    model.load_weights("weights/weights_final.h5")
     model.compile(loss="sparse_categorical_crossentropy", optimizer=tf.keras.optimizers.Adam(0.001),
                   metrics=["accuracy"])
     return model
@@ -42,8 +48,12 @@ def setup_model(num_classes):
 
 # detect all food in rectangles provided
 def detect_more(tray, img):
+    # import os
+    # current_directory = os.getcwd()
+    # print("Current working directory:", current_directory)
+
     # get class names from json file (stored during training)
-    with open("littleaug_weights_final_sparse_olddataset_class_names.json", "r") as f:
+    with open("weights/class_names.json", "r") as f:
         class_names = json.load(f)
 
     class_names = list(class_names.keys())  # get class names as list
@@ -53,7 +63,7 @@ def detect_more(tray, img):
     for e in class_names:
         lb, description = e.split(' ', 1)
         class_names_labels.append(int(lb))
-    print(class_names_labels)
+    # print(class_names_labels)
 
     # set food distribution
     background = [0]  # background
@@ -65,23 +75,24 @@ def detect_more(tray, img):
     model = setup_model(len(class_names))
 
     # get rectangles
-    bounding_box_path = "benchmark_dataset/tray" + str(tray) + "/bounding_boxes/" + img + "_bounding_box.txt"
-    rectangles = read_rectangles_from_file(bounding_box_path)
+    rectangles_path = "../tmp/rectangles.txt"
+    rectangles = read_rectangles_from_file(rectangles_path)
 
     # get image
-    image_path = "benchmark_dataset/tray" + str(tray) + "/" + img + ".jpg"
+    image_path = "../dataset/test_dataset/tray" + str(tray) + "/" + img + ".jpg"
     image = cv2.imread(image_path)
-    cv2.imshow("immagine", image)
-    cv2.waitKey(0)
+    # cv2.imshow("immagine", image)
+    # cv2.waitKey(0)
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)  # conversion used for classification
 
     output_lines = []  # list to store lines to print in output file
 
+    print("Predicting food in dishes and out dishes")
     for rect in rectangles:
         # get rect sub-image
         rect_image = image[rect[1]:rect[1] + rect[3], rect[0]:rect[0] + rect[2]]
-        cv2.imshow("sottoimmagine", rect_image)
-        cv2.waitKey(0)
+        # cv2.imshow("sottoimmagine", rect_image)
+        # cv2.waitKey(0)
 
         # preprocess image for prediction
         image_resized = cv2.resize(rect_image, (224, 224))
@@ -100,20 +111,20 @@ def detect_more(tray, img):
 
         if current_label in background:
             new_output_line = "[" + ', '.join([str(n) for n in rect]) + "], [" + str(current_label) + "]"
-            print(new_output_line)
+            # print(new_output_line)
             output_lines.append(new_output_line)
             continue
 
         if current_label in first_food:
             new_output_line = "[" + ', '.join([str(n) for n in rect]) + "] [" + str(current_label) + "]"
-            print(new_output_line)
+            # print(new_output_line)
             output_lines.append(new_output_line)
             continue
 
         if current_label in single_food:
             if current_prob > 0.5:
                 new_output_line = "[" + ', '.join([str(n) for n in rect]) + "] [" + str(current_label) + "]"
-                print(new_output_line)
+                # print(new_output_line)
                 output_lines.append(new_output_line)
                 continue
             index += 1
@@ -126,11 +137,11 @@ def detect_more(tray, img):
                 varius_food_label.append(current_label)
         new_output_line = "[" + ', '.join([str(n) for n in rect]) + "] [" + ', '.join(
             [str(n) for n in varius_food_label]) + "]"
-        print(new_output_line)
+        # print(new_output_line)
         output_lines.append(new_output_line)
 
-    out_path = 'benchmark_dataset/tray' + str(tray) + "/bounding_boxes/" + img +"_predicted.txt"
-    store_rectangles_to_file(out_path, output_lines)
+    store_rectangles_to_file("../tmp/labeled_rectangles.txt", output_lines)
+    # print(output_lines)
 
     # print(output_lines)
 
@@ -146,4 +157,6 @@ def detect_more(tray, img):
 
 
 if __name__ == '__main__':
-    detect_more(2, "food_image")
+    tray, img = read_food_info("../tmp/food_info.txt")
+    detect_more(tray, img)
+
