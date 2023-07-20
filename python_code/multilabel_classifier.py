@@ -11,12 +11,13 @@ input_shape = (224, 224, 3)
 def read_food_info(file_path):
     with open(file_path, 'r') as file:
         for line in file:
-            return line.split(' ')
+            return line
 
 
 def read_rectangles_from_file(file_path):
     rectangles = []
     with open(file_path, 'r') as file:
+        print("ooOOOOOOOO")
         for line in file:
             line = line.strip()[1:-1]
             values = line.split(',')
@@ -47,7 +48,7 @@ def setup_model(num_classes):
 
 
 # detect all food in rectangles provided
-def detect_more(tray, img):
+def detect_more(path_img):
     # import os
     # current_directory = os.getcwd()
     # print("Current working directory:", current_directory)
@@ -77,9 +78,10 @@ def detect_more(tray, img):
     # get rectangles
     rectangles_path = "../tmp/rectangles.txt"
     rectangles = read_rectangles_from_file(rectangles_path)
+    print(rectangles)
 
     # get image
-    image_path = "../dataset/test_dataset/tray" + str(tray) + "/" + img + ".jpg"
+    image_path = "../" + path_img
     image = cv2.imread(image_path)
     # cv2.imshow("immagine", image)
     # cv2.waitKey(0)
@@ -91,8 +93,8 @@ def detect_more(tray, img):
     for rect in rectangles:
         # get rect sub-image
         rect_image = image[rect[1]:rect[1] + rect[3], rect[0]:rect[0] + rect[2]]
-        # cv2.imshow("sottoimmagine", rect_image)
-        # cv2.waitKey(0)
+        cv2.imshow("sottoimmagine", rect_image)
+        cv2.waitKey(0)
 
         # preprocess image for prediction
         image_resized = cv2.resize(rect_image, (224, 224))
@@ -111,20 +113,20 @@ def detect_more(tray, img):
 
         if current_label in background:
             new_output_line = "[" + ', '.join([str(n) for n in rect]) + "], [" + str(current_label) + "]"
-            # print(new_output_line)
-            output_lines.append(new_output_line)
+            print(new_output_line)
+            #output_lines.append(new_output_line)
             continue
 
         if current_label in first_food:
             new_output_line = "[" + ', '.join([str(n) for n in rect]) + "] [" + str(current_label) + "]"
-            # print(new_output_line)
+            print(new_output_line)
             output_lines.append(new_output_line)
             continue
 
         if current_label in single_food:
             if current_prob > 0.5:
                 new_output_line = "[" + ', '.join([str(n) for n in rect]) + "] [" + str(current_label) + "]"
-                # print(new_output_line)
+                print(new_output_line)
                 output_lines.append(new_output_line)
                 continue
             index += 1
@@ -137,11 +139,11 @@ def detect_more(tray, img):
                 varius_food_label.append(current_label)
         new_output_line = "[" + ', '.join([str(n) for n in rect]) + "] [" + ', '.join(
             [str(n) for n in varius_food_label]) + "]"
-        # print(new_output_line)
+        print(new_output_line)
         output_lines.append(new_output_line)
 
     store_rectangles_to_file("../tmp/labeled_rectangles.txt", output_lines)
-    # print(output_lines)
+    print(output_lines)
 
     # print(output_lines)
 
@@ -157,6 +159,7 @@ def detect_more(tray, img):
 
 
 if __name__ == '__main__':
-    tray, img = read_food_info("../tmp/food_info.txt")
-    detect_more(tray, img)
+    path_img = read_food_info("../tmp/food_info.txt")
+    print(path_img)
 
+    detect_more(path_img)
