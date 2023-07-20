@@ -85,7 +85,8 @@ calculateAP(const std::vector<BoundingBox> &trueBoxes, const std::vector<Boundin
 
 void calculate_map_over_all_dataset(int tray, const std::string &imgName) {
     // Load true bounding boxes from the file
-    std::string trueFilePath = "dataset/test_dataset/tray" + std::to_string(tray) + "/bounding_boxes/" + imgName + "_bounding_box.txt";
+    std::string trueFilePath =
+            "dataset/test_dataset/tray" + std::to_string(tray) + "/bounding_boxes/" + imgName + "_bounding_box.txt";
     std::ifstream trueFile(trueFilePath);
     if (!trueFile.is_open()) {
         std::cout << "Error opening the file." << std::endl;
@@ -128,7 +129,7 @@ void calculate_map_over_all_dataset(int tray, const std::string &imgName) {
     // Calculate mAP for different IoU thresholds
     float iouThreshold = 0.5;
     float mAP = calculateAP(trueBoxes, predBoxes, iouThreshold);
-    std::cout << " mAP: " << mAP << std::endl;
+    std::cout << "Tray " << std::to_string(tray) << ", image " << imgName << ", mAP: " << mAP << std::endl;
 
     std::string outputFilePath = "outputs/tray" + std::to_string(tray) + "/bounding_boxes/" + imgName + "_mAP.txt";
     std::ofstream outputFile(outputFilePath);

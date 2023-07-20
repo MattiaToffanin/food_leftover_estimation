@@ -238,7 +238,6 @@ void estimateFoodLeftovers(std::string tray_image_dir, std::string leftover_imag
             }
         }
 
-
         //convert img in masked roi image
         cv::Mat roi(tray_img.size(), tray_img.type(), cv::Scalar(0, 0, 0));
 
@@ -249,9 +248,9 @@ void estimateFoodLeftovers(std::string tray_image_dir, std::string leftover_imag
 
             tray_img.copyTo(roi, mask_bread);
         } else {
-
             //masked dish img
-            tray_img.copyTo(roi, tray_dishesMasks[i]);
+            if (i < tray_dishesMasks.size())
+                tray_img.copyTo(roi, tray_dishesMasks[i]);
         }
 
 
@@ -413,9 +412,9 @@ void estimateFoodLeftovers(std::string tray_image_dir, std::string leftover_imag
 
             leftover_img.copyTo(roi, mask_bread);
         } else {
-
             //masked dish img
-            leftover_img.copyTo(roi, leftover_dishesMasks[i]);
+            if (i < tray_dishesMasks.size())
+                leftover_img.copyTo(roi, leftover_dishesMasks[i]);
         }
 
 
@@ -429,7 +428,6 @@ void estimateFoodLeftovers(std::string tray_image_dir, std::string leftover_imag
         cv::findContours(mask, contours, cv::RETR_TREE, cv::CHAIN_APPROX_SIMPLE);
 
         // Calculate the bounding rectangles for each contour
-
         for (std::vector<cv::Point> contour: contours) {
             cv::Rect rect = cv::boundingRect(contour);
             //rect = rect & cv::Rect(0, 0, leftover_img.cols, leftover_img.rows);

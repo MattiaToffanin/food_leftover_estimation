@@ -12,16 +12,16 @@
 
 int main() {
     std::vector<std::string> image_names = {"food_image", "leftover1", "leftover2", "leftover3"};
-    /*Py_Initialize();
+    Py_Initialize();
 
-    for (int i = 4; i < 9; ++i) {
+    for (int i = 1; i < 9; ++i) {
         for (int j = 1; j < image_names.size(); ++j) {
             estimateFoodLeftovers("dataset/test_dataset/tray" + std::to_string(i) + "/" + image_names[0] + ".jpg",
                                   "dataset/test_dataset/tray" + std::to_string(i) + "/" + image_names[j] + ".jpg");
         }
     }
 
-    Py_Finalize();*/
+    Py_Finalize();
 
     for (int i = 1; i < 9; ++i) {
         for (const std::string& image_name : image_names) {

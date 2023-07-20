@@ -1,3 +1,5 @@
+Execute the following commands to run the project
+
 mkdir build
 
 cd build
