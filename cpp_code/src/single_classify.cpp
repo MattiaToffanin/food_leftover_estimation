@@ -8,19 +8,19 @@
 #include <unistd.h>
 
 int single_classify() {
-    Py_Initialize();
+    //Py_Initialize();
 
     // installing dependencies
     const char *install_code = R"(
-    try:
-        import numpy as np
-        import tensorflow as tf
-        from tensorflow.keras import layers
-        import json
-        import cv2
-    except ImportError as e:
-        import pip
-        pip.main(['install', 'numpy', 'tensorflow', 'opencv-python'])
+try:
+    import numpy as np
+    import tensorflow as tf
+    from tensorflow.keras import layers
+    import json
+    import cv2
+except ImportError as e:
+    import pip
+    pip.main(['install', 'numpy', 'tensorflow', 'opencv-python'])
     )";
     int result = PyRun_SimpleString(install_code);
 
@@ -39,7 +39,7 @@ int single_classify() {
     FILE *fp = _Py_fopen_obj(obj, "r+");
     if (fp != NULL)
         PyRun_SimpleFile(fp, "singlelabel_classifier.py");
-    Py_Finalize();
+    //Py_Finalize();
 
     // re-setting working directory
     const char *root_path = "../";

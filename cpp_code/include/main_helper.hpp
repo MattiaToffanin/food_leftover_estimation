@@ -8,6 +8,6 @@
 
 
 void estimateFoodLeftovers(std::string tray_image_dir, std::string leftover_image_dir);
-
+std::vector<std::vector<int>> parseLine(std::string line);
 
 #endif

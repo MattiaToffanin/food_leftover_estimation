@@ -1,3 +1,5 @@
+# Created by Mattia Toffanin
+
 import numpy as np
 import tensorflow as tf
 from tensorflow.keras import layers
@@ -91,8 +93,8 @@ def detect_one(path_img):
     for rect in rectangles:
         # get rect sub-image
         rect_image = image[rect[1]:rect[1] + rect[3], rect[0]:rect[0] + rect[2]]
-        cv2.imshow("sottoimmagine", rect_image)
-        cv2.waitKey(0)
+        # cv2.imshow("sottoimmagine", rect_image)
+        # cv2.waitKey(0)
 
         # preprocess image for prediction
         image_resized = cv2.resize(rect_image, (224, 224))
@@ -106,7 +108,7 @@ def detect_one(path_img):
         current_label = class_names_labels[top_index]
 
         new_output_line = "ID: " + str(current_label) + "; [" + ', '.join([str(n) for n in rect]) + "]"
-        print(current_label)
+        #print(current_label)
         output_lines.append(new_output_line)
 
     tray, img_name = get_tray_and_image(path_img)
