@@ -1,1 +1,1 @@
-dataset/test_dataset/tray1/food_image.jpg
+dataset/test_dataset/tray7/leftover3.jpg

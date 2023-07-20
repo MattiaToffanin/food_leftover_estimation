@@ -292,7 +292,7 @@ void estimateFoodLeftovers(std::string tray_image_dir, std::string leftover_imag
 
 
     imshow("BOUNDING", tray_img);
-    //cv::waitKey();
+    cv::waitKey();
     cv::imwrite("outputs/masks/" + std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count())+ ".jpg", leftover_img);
 
 
@@ -461,7 +461,7 @@ void estimateFoodLeftovers(std::string tray_image_dir, std::string leftover_imag
 
 
     cv::imshow("BOUNDING", leftover_img);
-    //cv::waitKey();
+    cv::waitKey();
     cv::imwrite("outputs/masks/" + std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count())+ ".jpg", leftover_img);
 
 
