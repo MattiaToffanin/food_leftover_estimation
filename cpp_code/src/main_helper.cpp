@@ -1,8 +1,17 @@
 #include "../include/main_helper.hpp"
 #include "../include/find_food.hpp"
+#include "../include/multi_classify.hpp"
 
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
+#include <fstream>
+
+/*void writeImage_dir(std::string img_dir){
+    const std::string write_dir = "tmp/food_indo.txt";
+
+    std::ofstream file(write_dir);
+    if(file)
+}*/
 
 void estimateFoodLeftovers(std::string tray_image_dir, std::string leftover_image_dir) {
 
@@ -58,91 +67,41 @@ void estimateFoodLeftovers(std::string tray_image_dir, std::string leftover_imag
 
     //write rects
 
-    for (int i = 0; i < tray_dishesMasks.size(); i++) {
+    std::ofstream file1("tmp/food_info.txt");
 
-
-        //Select current dish
-        cv::Mat tray_dish_mask = tray_dishesMasks[i];
-        cv::Rect kernel = tray_dishesRect[i];
-
-
-        //Asjust kernel into the image frame to prevent overflow
-        cv::Rect img_frame(0, 0, tray_img.cols, tray_img.rows);
-        kernel = kernel & img_frame;
-
-
-        //Get the current dish roi
-        //cv::Mat roi = tray_dish_mask(kernel);
-
-        cv::imshow("tray dish " + std::to_string(i), tray_dish_mask);
-
+    if (file1.is_open()) {
+        file1 << tray_image_dir;
+    } else {
+        std::cout << "Impossibile aprire il file." << std::endl;
     }
+    file1.close();
+
+    std::ofstream file2("tmp/rectangles.txt");
+
+    if (file2.is_open()) {
+
+        for(cv::Rect rect : tray_dishesRect){
+            file2 << "["<<rect.x<<", "<<rect.y<<", "<<rect.width<<", "<<rect.height<<"]\n";
+        }
+
+        for(cv::Rect rect : tray_bread_regionsRect){
+            file2 << "["<<rect.x<<", "<<rect.y<<", "<<rect.width<<", "<<rect.height<<"]\n";
+        }
 
 
-    for (int i = 0; i < leftover_dishesMasks.size(); i++) {
-
-
-        //Select current dish
-        cv::Mat leftover_dish_mask = leftover_dishesMasks[i];
-        cv::Rect kernel = leftover_dishesRect[i];
-
-
-        //Asjust kernel into the image frame to prevent overflow
-        cv::Rect img_frame(0, 0, leftover_img.cols, leftover_img.rows);
-        kernel = kernel & img_frame;
-
-
-        //Get the current dish roi
-        cv::Mat roi = leftover_dish_mask(kernel);
-
-        cv::imshow("leftover dish " + std::to_string(i), roi);
-
+    } else {
+        std::cout << "Impossibile aprire il file." << std::endl;
     }
-
-
-    for (int i = 0; i < tray_bread_regionsRect.size(); i++) {
-
-
-        //Select current dish
-        cv::Rect kernel = tray_bread_regionsRect[i];
-
-
-        //Asjust kernel into the image frame to prevent overflow
-        cv::Rect img_frame(0, 0, tray_img.cols, tray_img.rows);
-        kernel = kernel & img_frame;
-
-
-        //Get the current dish roi
-        cv::Mat roi = tray_img(kernel);
-
-        cv::imshow("tray bread " + std::to_string(i), roi);
-
-    }
-
-
-    for (int i = 0; i < leftover_bread_regionsRect.size(); i++) {
-
-
-        //Select current dish
-        cv::Rect kernel = leftover_bread_regionsRect[i];
-
-
-        //Asjust kernel into the image frame to prevent overflow
-        cv::Rect img_frame(0, 0, leftover_img.cols, leftover_img.rows);
-        kernel = kernel & img_frame;
-
-
-        //Get the current dish roi
-        cv::Mat roi = leftover_img(kernel);
-
-        cv::imshow("leftover bread " + std::to_string(i), roi);
-
-    }
-
-    cv::waitKey();
-
+    file2.close();
 
     //classification
+
+    multi_classify();
+
+
+
+
+
 
 
     //segmentation
