@@ -1,1 +1,1 @@
-dataset/test_dataset/tray7/leftover3.jpg
+dataset/test_dataset/tray8/leftover3.jpg
