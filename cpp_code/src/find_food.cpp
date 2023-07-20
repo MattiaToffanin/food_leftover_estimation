@@ -74,12 +74,12 @@ std::vector<cv::Vec3f> findDishes(const cv::Mat img) {
 
 
 
-std::vector<cv::Rect> getFoodRect(const std::vector<cv::Vec3f> dishes_set) {
+std::vector<cv::Rect> getFoodRect(const std::vector<cv::Vec3f> dishes_set, cv::Mat img) {
 
 
 
 	std::vector<cv::Rect> dishesRect;
-
+    cv::Rect kern(0,0,img.cols,img.rows);
 
 
 	//convert circles in rectangles containing the circles
@@ -95,7 +95,8 @@ std::vector<cv::Rect> getFoodRect(const std::vector<cv::Vec3f> dishes_set) {
 		//define the rect 
 		cv::Rect dishRect((int)x - radius, (int)y - radius, 2 * radius, 2 * radius);
 
-		
+		dishRect = dishRect&kern;
+
 		//save 
 		dishesRect.push_back(dishRect);
 	}

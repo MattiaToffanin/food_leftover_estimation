@@ -1,6 +1,7 @@
 #include "../include/main_helper.hpp"
 #include "../include/find_food.hpp"
 #include "../include/multi_classify.hpp"
+#include "../include/single_classify.hpp"
 
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
@@ -35,13 +36,13 @@ void estimateFoodLeftovers(std::string tray_image_dir, std::string leftover_imag
     //find dishes in tray image
     std::vector<cv::Vec3f> tray_dishes = findDishes(tray_img);
     std::vector<cv::Mat> tray_dishesMasks = getFoodMask(tray_dishes, tray_img.size());
-    std::vector<cv::Rect> tray_dishesRect = getFoodRect(tray_dishes);
+    std::vector<cv::Rect> tray_dishesRect = getFoodRect(tray_dishes, tray_img);
 
 
     //find dishes in leftover image
     std::vector<cv::Vec3f> leftover_dishes = findDishes(leftover_img);
     std::vector<cv::Mat> leftover_dishesMasks = getFoodMask(leftover_dishes, leftover_img.size());
-    std::vector<cv::Rect> leftover_dishesRect = getFoodRect(leftover_dishes);
+    std::vector<cv::Rect> leftover_dishesRect = getFoodRect(leftover_dishes, leftover_img);
 
 
 
@@ -57,12 +58,12 @@ void estimateFoodLeftovers(std::string tray_image_dir, std::string leftover_imag
 
     //find the bread in tray image
     std::vector<cv::Vec3f> tray_bread_regions = findBread(tray_img_without_dishes);
-    std::vector<cv::Rect> tray_bread_regionsRect = getFoodRect(tray_bread_regions);
+    std::vector<cv::Rect> tray_bread_regionsRect = getFoodRect(tray_bread_regions, tray_img);
 
 
     //find the bread in leftover image
     std::vector<cv::Vec3f> leftover_bread_regions = findBread(leftover_img_without_dishes);
-    std::vector<cv::Rect> leftover_bread_regionsRect = getFoodRect(leftover_bread_regions);
+    std::vector<cv::Rect> leftover_bread_regionsRect = getFoodRect(leftover_bread_regions, leftover_img);
 
 
     //write rects
@@ -80,12 +81,12 @@ void estimateFoodLeftovers(std::string tray_image_dir, std::string leftover_imag
 
     if (file2.is_open()) {
 
-        for(cv::Rect rect : tray_dishesRect){
-            file2 << "["<<rect.x<<", "<<rect.y<<", "<<rect.width<<", "<<rect.height<<"]\n";
+        for (cv::Rect rect: tray_dishesRect) {
+            file2 << "[" << rect.x << ", " << rect.y << ", " << rect.width << ", " << rect.height << "]\n";
         }
 
-        for(cv::Rect rect : tray_bread_regionsRect){
-            file2 << "["<<rect.x<<", "<<rect.y<<", "<<rect.width<<", "<<rect.height<<"]\n";
+        for (cv::Rect rect: tray_bread_regionsRect) {
+            file2 << "[" << rect.x << ", " << rect.y << ", " << rect.width << ", " << rect.height << "]\n";
         }
 
 
@@ -94,19 +95,25 @@ void estimateFoodLeftovers(std::string tray_image_dir, std::string leftover_imag
     }
     file2.close();
 
-    //classification
+    //multi-label classification
 
-    multi_classify();
+    //multi_classify();
+/*
 
+    std::ofstream file3("tmp/labeled_rectangles.txt");
 
-
-
-
-
-
+    if (file3.is_open()) {
+        std::cout << "DAJEEEEEE";
+    } else {
+        std::cout << "Impossibile aprire il file." << std::endl;
+    }
+    file3.close();
+*/
     //segmentation
 
 
+    // single-label classification
+    single_classify();
 
 
 }

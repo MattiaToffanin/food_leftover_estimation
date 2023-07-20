@@ -2,12 +2,12 @@
 // Created by Mattia Toffanin on 20/07/23.
 //
 
-#include "../include/multi_classify.hpp"
+#include "../include/single_classify.hpp"
 #include <Python.h>
 #include "iostream"
 #include <unistd.h>
 
-int multi_classify() {
+int single_classify() {
     Py_Initialize();
 
     // installing dependencies
@@ -35,10 +35,10 @@ int multi_classify() {
         std::cerr << "Failed to change directory!" << std::endl;
         return 1;
     }
-    PyObject * obj = Py_BuildValue("s", "multilabel_classifier.py");
+    PyObject * obj = Py_BuildValue("s", "singlelabel_classifier.py");
     FILE *fp = _Py_fopen_obj(obj, "r+");
     if (fp != NULL)
-        PyRun_SimpleFile(fp, "multilabel_classifier.py");
+        PyRun_SimpleFile(fp, "singlelabel_classifier.py");
     Py_Finalize();
 
     // re-setting working directory

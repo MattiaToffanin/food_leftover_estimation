@@ -2,22 +2,22 @@ import numpy as np
 import tensorflow as tf
 from tensorflow.keras import layers
 import json
-from PIL import Image
 import cv2
 
 input_shape = (224, 224, 3)
 
 
+# function to read on which image we are working
 def read_food_info(file_path):
     with open(file_path, 'r') as file:
         for line in file:
             return line
 
 
+# function to read rectangles from dish detection
 def read_rectangles_from_file(file_path):
     rectangles = []
     with open(file_path, 'r') as file:
-        print("ooOOOOOOOO")
         for line in file:
             line = line.strip()[1:-1]
             values = line.split(',')
@@ -26,12 +26,14 @@ def read_rectangles_from_file(file_path):
     return rectangles
 
 
+# function to store labels of rectangles
 def store_rectangles_to_file(file_path, output_lines):
     with open(file_path, 'w') as file:
         for line in output_lines:
             file.write(line + '\n')
 
 
+# function to set up the model
 def setup_model(num_classes):
     base_model = tf.keras.applications.EfficientNetB1(include_top=False)
     inputs = layers.Input(shape=input_shape, name="input_layer")
@@ -49,10 +51,6 @@ def setup_model(num_classes):
 
 # detect all food in rectangles provided
 def detect_more(path_img):
-    # import os
-    # current_directory = os.getcwd()
-    # print("Current working directory:", current_directory)
-
     # get class names from json file (stored during training)
     with open("weights/class_names.json", "r") as f:
         class_names = json.load(f)
@@ -78,23 +76,25 @@ def detect_more(path_img):
     # get rectangles
     rectangles_path = "../tmp/rectangles.txt"
     rectangles = read_rectangles_from_file(rectangles_path)
-    print(rectangles)
+    # print(rectangles)
 
     # get image
     image_path = "../" + path_img
     image = cv2.imread(image_path)
-    # cv2.imshow("immagine", image)
+    # cv2.imshow("immagine", image) # uncomment to see image
     # cv2.waitKey(0)
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)  # conversion used for classification
 
     output_lines = []  # list to store lines to print in output file
 
     print("Predicting food in dishes and out dishes")
+    p_bread = 0  # probability of bread
+    output_bread = ""
     for rect in rectangles:
         # get rect sub-image
         rect_image = image[rect[1]:rect[1] + rect[3], rect[0]:rect[0] + rect[2]]
-        cv2.imshow("sottoimmagine", rect_image)
-        cv2.waitKey(0)
+        # cv2.imshow("sottoimmagine", rect_image) # uncomment to see image
+        # cv2.waitKey(0)
 
         # preprocess image for prediction
         image_resized = cv2.resize(rect_image, (224, 224))
@@ -113,21 +113,23 @@ def detect_more(path_img):
 
         if current_label in background:
             new_output_line = "[" + ', '.join([str(n) for n in rect]) + "], [" + str(current_label) + "]"
-            print(new_output_line)
-            #output_lines.append(new_output_line)
+            # print(new_output_line)
+            # output_lines.append(new_output_line)
             continue
 
         if current_label in first_food:
             new_output_line = "[" + ', '.join([str(n) for n in rect]) + "] [" + str(current_label) + "]"
-            print(new_output_line)
+            # print(new_output_line)
             output_lines.append(new_output_line)
             continue
 
         if current_label in single_food:
             if current_prob > 0.5:
-                new_output_line = "[" + ', '.join([str(n) for n in rect]) + "] [" + str(current_label) + "]"
-                print(new_output_line)
-                output_lines.append(new_output_line)
+                if current_prob > p_bread:
+                    p_bread = current_prob
+                    output_bread = "[" + ', '.join([str(n) for n in rect]) + "] [" + str(current_label) + "]"
+                # print("[" + ', '.join([str(n) for n in rect]) + "] [" + str(current_label) + "]")
+                # print(predictions[0, top_indices[index]])
                 continue
             index += 1
 
@@ -139,27 +141,15 @@ def detect_more(path_img):
                 varius_food_label.append(current_label)
         new_output_line = "[" + ', '.join([str(n) for n in rect]) + "] [" + ', '.join(
             [str(n) for n in varius_food_label]) + "]"
-        print(new_output_line)
+        # print(new_output_line)
         output_lines.append(new_output_line)
 
+    if output_bread != "":
+        output_lines.append(output_bread)
     store_rectangles_to_file("../tmp/labeled_rectangles.txt", output_lines)
-    print(output_lines)
-
     # print(output_lines)
-
-    # print(class_names[top_indices[0]])
-    # print("Prediction on entire image")
-    # for j in top_indices:
-    #     class_name = class_names[j]
-    #     probability = predictions[0, j]
-    #
-    #     print("Classe:", class_name)
-    #     print("Probabilità:", probability)
-    #     print()
 
 
 if __name__ == '__main__':
     path_img = read_food_info("../tmp/food_info.txt")
-    print(path_img)
-
     detect_more(path_img)
