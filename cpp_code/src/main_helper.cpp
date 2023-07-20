@@ -7,6 +7,7 @@
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
 #include <fstream>
+#include <chrono>
 
 /*void writeImage_dir(std::string img_dir){
     const std::string write_dir = "tmp/food_indo.txt";
@@ -255,7 +256,10 @@ void estimateFoodLeftovers(std::string tray_image_dir, std::string leftover_imag
 
 
         cv::Mat mask = getFoodMask(roi, selection);
-        //imshow("Rectangle" + std::to_string(i), mask);
+        cv::Mat msk(tray_img.size(), tray_img.type(), cv::Scalar(0, 0, 0));
+        tray_img.copyTo(msk, mask);
+        cv::imshow("Rectangle" + std::to_string(i), msk);
+        cv::imwrite("outputs/masks/" + std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count())+ ".jpg", msk);
 
         // Find the contours in the binary mask
         std::vector<std::vector<cv::Point>> contours;
@@ -288,7 +292,9 @@ void estimateFoodLeftovers(std::string tray_image_dir, std::string leftover_imag
 
 
     imshow("BOUNDING", tray_img);
-    cv::waitKey();
+    //cv::waitKey();
+    cv::imwrite("outputs/masks/" + std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count())+ ".jpg", leftover_img);
+
 
 
     /*if (label >= 1 && label <= 5)
@@ -419,7 +425,11 @@ void estimateFoodLeftovers(std::string tray_image_dir, std::string leftover_imag
 
 
         cv::Mat mask = getFoodMask(roi, selection);
-        //imshow("Rectangle" + std::to_string(i), mask);
+        cv::imshow("Rectangle" + std::to_string(i), mask);
+        cv::Mat msk(leftover_img.size(), leftover_img.type(), cv::Scalar(0, 0, 0));
+        leftover_img.copyTo(msk, mask);
+        cv::imshow("Rectangle" + std::to_string(i), msk);
+        cv::imwrite("outputs/masks/" + std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count())+ ".jpg", msk);
 
         // Find the contours in the binary mask
         std::vector<std::vector<cv::Point>> contours;
@@ -450,8 +460,10 @@ void estimateFoodLeftovers(std::string tray_image_dir, std::string leftover_imag
     file6.close();
 
 
-    imshow("BOUNDING", leftover_img);
-    cv::waitKey();
+    cv::imshow("BOUNDING", leftover_img);
+    //cv::waitKey();
+    cv::imwrite("outputs/masks/" + std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count())+ ".jpg", leftover_img);
+
 
     single_classify();
 
