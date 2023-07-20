@@ -91,7 +91,7 @@ std::vector<cv::Rect> getFoodRect(const std::vector<cv::Vec3f> dishes_set, const
         //define the rect
         cv::Rect dishRect((int) x - radius, (int) y - radius, 2 * radius, 2 * radius);
 
-        dishRect = dishRect & cv::Rect(0, 0, img.rows, img.cols);
+        dishRect = dishRect & cv::Rect(0, 0, img.cols, img.rows);
 
         //save
         dishesRect.push_back(dishRect);

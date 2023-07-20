@@ -77,7 +77,8 @@ std::vector<std::vector<int>> parseLine(std::string line) {
 
 void estimateFoodLeftovers(std::string tray_image_dir, std::string leftover_image_dir) {
 
-
+    std::cout << tray_image_dir << std::endl;
+    std::cout << leftover_image_dir << std::endl << std::endl;
     //check images
 
     /*-------load images-------*/
@@ -151,21 +152,15 @@ void estimateFoodLeftovers(std::string tray_image_dir, std::string leftover_imag
             file2 << "[" << rect.x << ", " << rect.y << ", " << rect.width << ", " << rect.height << "]\n";
         }
 
-
     } else {
         std::cout << "Error opening the file." << std::endl;
     }
     file2.close();
 
 
-
-
-    /*-------classify found regions-------*/
-
-
+    //-------classify found regions-------
 
     multi_classify();
-
 
     //read labels
 
@@ -190,25 +185,6 @@ void estimateFoodLeftovers(std::string tray_image_dir, std::string leftover_imag
         rects.push_back(cv::Rect(rect_values[0], rect_values[1], rect_values[2], rect_values[3]));
 
         labels.push_back(parsed[1]);
-
-        std::cout << line << std::endl;
-
-    }
-
-    int i = 0;
-    for (cv::Rect value: rects) {
-        std::cout << "[RECTANGLE " << std::to_string(i) << " ]" << std::endl;
-        std::cout << value << std::endl;
-        i++;
-    }
-
-    i = 0;
-    for (std::vector<int> line: labels) {
-        std::cout << "[LABELS " << std::to_string(i) << " ]" << std::endl;
-        for (int val: line) {
-            std::cout << val << std::endl;
-        }
-        i++;
     }
 
 
@@ -216,8 +192,7 @@ void estimateFoodLeftovers(std::string tray_image_dir, std::string leftover_imag
     inputFile.close();
 
 
-
-    /*---------segmentation----------*/
+    //-- -- -- -- -segmentation-- -- -- -- --
 
 
     std::vector<std::vector<int>> foodGroup = {{1,  2, 3, 4,  5, 9},
@@ -293,7 +268,7 @@ void estimateFoodLeftovers(std::string tray_image_dir, std::string leftover_imag
 
         for (std::vector<cv::Point> contour: contours) {
             cv::Rect rect = cv::boundingRect(contour);
-            rect = rect & cv::Rect(0, 0, tray_img.rows, tray_img.cols);
+            rect = rect & cv::Rect(0, 0, tray_img.cols, tray_img.rows);
             boundingRects.push_back(rect);
             rectangle(tray_img, rect, cv::Scalar(0, 0, 255), 2);
         }
@@ -313,14 +288,173 @@ void estimateFoodLeftovers(std::string tray_image_dir, std::string leftover_imag
     file3.close();
 
 
-    //imshow("BOUNDING", tray_img);
-    //cv::waitKey();
+    imshow("BOUNDING", tray_img);
+    cv::waitKey();
 
 
-    /* if(label >= 1 && label <=5)
-         kmeans()
- */
+    /*if (label >= 1 && label <= 5)
+        kmeans()*/
+
     single_classify();
 
+
+
+
+    //////// Classifying leftover ////////
+
+
+    std::ofstream file4("tmp/food_info.txt");
+
+    if (file4.is_open()) {
+        file4 << leftover_image_dir;
+    } else {
+        std::cout << "Error opening the file." << std::endl;
+    }
+    file4.close();
+
+    std::ofstream file5("tmp/rectangles.txt");
+
+    if (file5.is_open()) {
+        for (cv::Rect rect: leftover_dishesRect) {
+            file5 << "[" << rect.x << ", " << rect.y << ", " << rect.width << ", " << rect.height << "]\n";
+        }
+
+        for (cv::Rect rect: leftover_bread_regionsRect) {
+            file5 << "[" << rect.x << ", " << rect.y << ", " << rect.width << ", " << rect.height << "]\n";
+        }
+    } else {
+        std::cout << "Error opening the file." << std::endl;
+    }
+    file5.close();
+
+
+    multi_classify();
+
+
+    //read labels
+
+    // Replace "filename.txt" with the actual name of your generated file.
+    std::ifstream inputFile2("tmp/labeled_rectangles.txt");
+
+    // Check if the file was opened successfully.
+    if (!inputFile2.is_open()) {
+        std::cout << "Error opening the file." << std::endl;
+    }
+
+    // Read the content from the file.
+    std::string line2;
+    std::vector<cv::Rect> rects2;
+    std::vector<std::vector<int>> labels2;
+    while (std::getline(inputFile2, line2)) {
+        // Process each line here.
+        std::vector<std::vector<int>> parsed = parseLine(line2);
+
+        std::vector<int> rect_values2 = parsed[0];
+
+        rects2.push_back(cv::Rect(rect_values2[0], rect_values2[1], rect_values2[2], rect_values2[3]));
+
+        labels2.push_back(parsed[1]);
+    }
+
+
+    // Close the file after reading.
+    inputFile2.close();
+
+
+    //-- -- -- -- -segmentation-- -- -- -- --
+
+    std::vector<cv::Rect> boundingRects_leftover;
+
+    //segment each rectangle
+    for (int i = 0; i < rects2.size(); i++) {
+
+
+        //select the type of segmentation based on the food type
+        unsigned char selection = 5;
+
+
+        std::vector<int> label = labels2[i];
+
+
+        //take the current labels
+        for (int value: label) {
+
+            if (value == 13) {
+
+                bread = true;
+                rect_bread = i;
+            } else
+                bread = false;
+
+
+            //check the food type
+            for (int j = 0; j < foodGroup.size(); j++) {
+
+
+                auto it = std::find(foodGroup[j].begin(), foodGroup[j].end(), value);
+
+
+                if (it != foodGroup[j].end()) {
+
+                    selection = j;
+                }
+
+            }
+        }
+
+
+        //convert img in masked roi image
+        cv::Mat roi(leftover_img.size(), leftover_img.type(), cv::Scalar(0, 0, 0));
+
+        if (bread) {
+            //roi = leftover_img(rects2[rect_bread]);
+            cv::Mat mask_bread(leftover_img.size(), CV_8UC1, cv::Scalar(0));
+            rectangle(mask_bread, rects2[rect_bread], cv::Scalar(255), -1);
+
+            leftover_img.copyTo(roi, mask_bread);
+        } else {
+
+            //masked dish img
+            leftover_img.copyTo(roi, leftover_dishesMasks[i]);
+        }
+
+
+        cv::Mat mask = getFoodMask(roi, selection);
+        //imshow("Rectangle" + std::to_string(i), mask);
+
+        // Find the contours in the binary mask
+        std::vector<std::vector<cv::Point>> contours;
+
+        //find contours
+        cv::findContours(mask, contours, cv::RETR_TREE, cv::CHAIN_APPROX_SIMPLE);
+
+        // Calculate the bounding rectangles for each contour
+
+        for (std::vector<cv::Point> contour: contours) {
+            cv::Rect rect = cv::boundingRect(contour);
+            //rect = rect & cv::Rect(0, 0, leftover_img.cols, leftover_img.rows);
+            boundingRects_leftover.push_back(rect);
+            rectangle(leftover_img, rect, cv::Scalar(0, 0, 255), 2);
+        }
+    }
+
+    std::ofstream file6("tmp/segmentations_rectangle.txt");
+    if (file6.is_open()) {
+
+        for (cv::Rect rect: boundingRects_leftover) {
+            file6 << "[" << rect.x << ", " << rect.y << ", " << rect.width << ", " << rect.height << "]\n";
+        }
+
+    } else {
+        std::cout << "Error opening the file." << std::endl;
+    }
+
+    file6.close();
+
+
+    imshow("BOUNDING", leftover_img);
+    cv::waitKey();
+
+    single_classify();
 
 }
